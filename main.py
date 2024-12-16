@@ -1,3 +1,13 @@
+# Final Project - Online Restaurant Ordering System (by Xin)
+# author: xin
+# created: 2024-12-15
+# IDE: VSCode 
+# pseudo code
+# 1. Build the main window with navigation buttons.
+# 2. Build the menu window to display menu items and allow adding to cart.
+# 3. Build the cart window to manage cart items, submit orders, and validate input.
+
+
 import tkinter as tk
 from tkinter import messagebox
 from PIL import Image, ImageTk
@@ -140,9 +150,12 @@ class CartWindow(tk.Toplevel):
         self.total_label = tk.Label(self, textvariable=self.total_price, font=("Helvetica", 12), bg="#333333", fg="white")
         self.total_label.pack()
 
-        # set the buttons
+        # set the buttons and labels
         tk.Button(self, text="Remove Selected", command=self.remove_selected, bg="white", fg="black", relief="flat").pack(pady=5)
         tk.Button(self, text="Clear Cart", command=self.clear_cart, bg="white", fg="black", relief="flat").pack(pady=5)
+        tk.Label(self, text="Special Requests:", font=("Helvetica", 12), bg="#333333", fg="white").pack(pady=5)
+        self.special_requests_entry = tk.Entry(self, width=40)
+        self.special_requests_entry.pack(pady=5)
         tk.Button(self, text="Submit Order", command=self.submit_order, bg="white", fg="black", relief="flat").pack(pady=10)
     
     #Update the listbox to show the current items in the cart
@@ -169,13 +182,36 @@ class CartWindow(tk.Toplevel):
         self.update_cart_display()
         self.total_price.set(0)
 
-    #submit the order and clear the cart
+    #submit the order with special requests
     def submit_order(self):
+        special_requests = self.special_requests_entry.get().strip()
+        # if no special requests,give it a defat value
+        if not special_requests:
+            special_requests = "No special requests"
+
+        #Validate input: only allow letters, numbers, spaces, and specific English punctuation
+        import re
+        if not re.match(r"^[a-zA-Z0-9,.!?;:()'\" -]*$", special_requests):
+            tk.messagebox.showerror("Input Error", "Special requests contain invalid characters.")
+            return
+
+        # input should not more than 100 letters
+        if len(special_requests) > 100:
+            tk.messagebox.showwarning("Input Validation", "Special requests should not exceed 100 characters.")
+            return
+
+        # check if the cart is empty
         if not self.cart_items:
             tk.messagebox.showinfo("Cart Empty", "Your cart is empty. Add items before submitting.")
             return
-        tk.messagebox.showinfo("Order Submitted", "Your order has been submitted successfully!")
-        self.clear_cart()  
+
+        # submit the order
+        tk.messagebox.showinfo("Order Submitted", f"Your order has been submitted successfully!\nSpecial Requests: {special_requests}")
+        self.clear_cart()
+        self.special_requests_entry.delete(0, tk.END)
+
+  
+
 
 
 #start the program
